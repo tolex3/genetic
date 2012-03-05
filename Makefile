@@ -1,3 +1,4 @@
+# a comment
 CC=g++
 
 all:	run_genetic benchmarkWinningStrategy
