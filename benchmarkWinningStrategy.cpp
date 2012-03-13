@@ -13,6 +13,9 @@
 #include <ctime>
 #include <ncurses.h>
 
+#include <getopt.h>
+#include <stdio.h>
+
 using namespace std;
 
 int hundredGenStrategy [ ] = {1,1,5,4,3,4,0,6,3,1,3,0,4,2,5,5,5,1,6,5,5,0,6,4,6,5,4,1,1,3,6,1,0,4,4,0,4,2,4,0,0,5,5,4,6,1,4,2,3,4,6,0,1,1,1,0,6,2,1,3,6,0,0,1,5,1,0,0,1,1,2,2,4,4,0,2,1,4,0,6,5,5,0,4,3,2,3,2,0,2,6,1,5,5,2,1,5,4,5,6,5,4,5,5,1,5,4,6,1,3,2,5,1,1,3,3,3,6,6,2,6,5,4,6,3,0,0,2,2,5,5,5,5,3,6,0,6,2,2,1,1,1,0,4,6,5,3,5,5,3,6,6,0,5,6,0,5,0,4,2,4,3,2,1,6,0,2,5,6,5,0,3,2,2,4,2,1,4,3,4,3,5,2,5,4,5,1,4,4,0,1,0,3,5,3,2,4,5,1,3,6,1,3,4,4,6,3,5,4,3,0,0,1,1,1,0,4,1,1,0,6,6,3,5,5,1,1,1,6,1,5,4,2,0,1,4,2,1,3,2,1,1,3,2};
@@ -25,7 +28,7 @@ int hundredKStrategy [ ] = {4,3,5,0,4,3,1,3,6,2,6,2,1,0,5,2,5,2,1,0,0,1,0,3,6,4,
 
 int topStrategy [ ] = {0,4,3,0,0,3,5,4,4,0,0,4,0,4,3,4,0,0,3,1,1,0,1,4,3,1,0,0,2,1,5,0,4,3,3,3,1,1,2,3,5,0,4,3,3,4,2,2,4,0,2,2,0,0,1,5,3,5,2,3,1,0,2,1,4,2,3,4,3,2,5,1,4,4,5,3,1,4,5,2,2,3,4,1,3,3,3,1,1,1,3,1,1,2,2,2,2,0,1,3,2,3,2,4,2,2,1,2,5,0,1,4,0,3,2,4,3,1,1,1,2,3,3,2,2,2,1,1,4,2,1,3,2,2,4,4,0,4,2,0,3,1,2,5,5,0,3,5,0,0,0,2,2,0,1,3,5,2,2,5,1,4,3,1,5,1,4,4,3,2,3,3,5,2,4,4,4,4,1,4,5,1,5,4,1,4,4,1,2,0,4,3,3,4,4,3,2,4,4,4,3,4,4,4,4,4,4,4,4,0,4,1,1,4,1,1,0,4,0,0,4,4,2,4,2,1,4,0,2,4,4,4,4,4,3,4,1,3,4,1,1,5,1};
 
-int main ( ) {
+int main(int argc, char **argv) {
 
   Robby agent;
   Strategy fiftyKGen;
@@ -34,6 +37,55 @@ int main ( ) {
   Strategy thousandGen;
   Strategy tenKGen;
   Strategy hundredKGen;
+
+  int cc;
+  int nr_steps = 20;
+     
+       while (1)
+         {
+           static struct option long_options[] =
+             {
+//               {"Number of agents",     required_argument,       0, 'a'},
+//               {"Number of cleaning sessions",  required_argument,       0, 'c'},
+//               {"Number of survivors",  required_argument, 0, 'n'},
+               {"Number of steps in each cleaning session",  required_argument, 0, 's'},
+               {0, 0, 0, 0}
+             };
+           /* getopt_long stores the option index here. */
+           int option_index = 0;
+     
+           cc = getopt_long (argc, argv, "s:",
+                            long_options, &option_index);
+     
+           /* Detect the end of the options. */
+           if (cc == -1)
+             break;
+     
+           switch (cc)
+             {
+             case 0:
+               printf ("option %s", long_options[option_index].name);
+               if (optarg)
+                 printf (" with arg %s", optarg);
+               printf ("\n");
+               break;
+             case 's':
+               printf ("option -%c with value `%s'\n", cc, optarg);     
+               nr_steps = (int) atol(optarg);
+               break;
+//             case 'a':
+//             case 'n':      
+//             case 'c':
+//               printf ("option -%c with value `%s'\n", cc, optarg);     
+//               break;
+             case '?':
+               /* getopt_long already printed an error message. */
+               break;
+     
+             default:
+               abort ();
+             }
+         }
 
   fiftyKGen.writeStrategy ( topStrategy );
   hundredGen.writeStrategy ( hundredGenStrategy );
@@ -114,7 +166,7 @@ int main ( ) {
       }
       agent.resetStatistics ( );
     
-    for ( int steps = 0; steps < STEPS; steps++) {
+    for ( int steps = 0; steps < nr_steps; steps++) {
       agent.updateContext ( ) ;
       
       agent.getContext().getContext ( c, n, e, s, w );

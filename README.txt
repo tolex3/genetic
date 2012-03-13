@@ -1,5 +1,4 @@
 This is a quick & dirty hack, purpose only being to do a quick experiment with a genetic algoritm. The code is as unbeautiful code can be, but it does it's job, which for me was to understand how GA's work.  You are most welcome to improve all aspects of this hack... :-)  --tolex3
-Looking into it... -flarss
 
 Here's sources and Makefile for building two executables:
 
