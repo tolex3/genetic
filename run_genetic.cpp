@@ -8,6 +8,9 @@
 #include <cstdlib>
 #include <ctime>
 
+#include <getopt.h>
+#include <stdio.h>
+
 using namespace std;
 
 // Max theoretical score: 500 (~50 cans x 10 points)
@@ -25,27 +28,82 @@ using namespace std;
 // Robby, the programmer defines the evolution rules, and let's the program itself figure
 // out an optimal algorithm.
 
-Robby agentArray [ NR_AGENTS ];
 Strategy s;
 StrategyStore st;
 
-int main ( void ){
+int main(int argc, char **argv) {
 
   int genCounter = 0;
   int populationCount = 0;
   int sessionScores = 0;
   int fieldMatrix [ 10 ] [ 10 ];
-
+  int c;
+  int nr_generations = 1000;
+  int nr_steps = 200;
+     
+       while (1)
+         {
+           static struct option long_options[] =
+             {
+//               {"Number of agents",     required_argument,       0, 'a'},
+//               {"Number of cleaning sessions",  required_argument,       0, 'c'},
+               {"Number of generations",    required_argument, 0, 'g'},
+//               {"Number of survivors",  required_argument, 0, 'n'},
+               {"Number of steps in each cleaning session",  required_argument, 0, 's'},
+               {0, 0, 0, 0}
+             };
+           /* getopt_long stores the option index here. */
+           int option_index = 0;
+     
+           c = getopt_long (argc, argv, "g:s:",
+                            long_options, &option_index);
+     
+           /* Detect the end of the options. */
+           if (c == -1)
+             break;
+     
+           switch (c)
+             {
+             case 0:
+               printf ("option %s", long_options[option_index].name);
+               if (optarg)
+                 printf (" with arg %s", optarg);
+               printf ("\n");
+               break;
+             case 'g':
+               printf ("option -%c with value `%s'\n", c, optarg);     
+               nr_generations = (int) atol(optarg);
+               break;
+             case 's':
+               printf ("option -%c with value `%s'\n", c, optarg);     
+               nr_steps = (int) atol(optarg);
+               break;
+//             case 'a':
+//             case 'n':      
+//             case 'c':
+//               printf ("option -%c with value `%s'\n", c, optarg);     
+//               break;
+             case '?':
+               /* getopt_long already printed an error message. */
+//               break;
+     
+             default:
+               abort ();
+             }
+         }
+         
   srand ( time ( NULL ) );
 
   // initialize agents
-
+  
+  Robby agentArray [ NR_AGENTS ];
+  
   for ( int agent = 0; agent < NR_AGENTS; agent++ ) {
     s.setRandomStrategy ( );
     agentArray [ agent ].setStrategy ( s );
   }
 
-  while ( genCounter < GENERATIONS ) {
+  while ( genCounter < nr_generations ) {
 
     for ( int agent = 0; agent < NR_AGENTS; agent++ ) {
 
@@ -57,7 +115,7 @@ int main ( void ){
 	agentArray [ agent ].initializeField ( fieldMatrix ) ;
 	agentArray [ agent ].resetStatistics ( );
 
-	for ( int steps = 0; steps < STEPS; steps++ ) {
+	for ( int steps = 0; steps < nr_steps; steps++ ) {
 
 	  // make one step by figuring out current context, getting the index for that context, getting the action for that index 
 
@@ -143,7 +201,7 @@ int main ( void ){
       cout << endl << "generation average similarity:" << st.averageSimilarity () << endl;
     }
 
-    if (genCounter < GENERATIONS -1)
+    if (genCounter < nr_generations -1)
       st.resetRanks ( );
 
     genCounter++;
@@ -172,7 +230,7 @@ int main ( void ){
     winningAgent.initializeField ( fieldMatrix );
     winningAgent.resetStatistics ( );
     
-    for ( int steps = 0; steps < STEPS; steps++) {
+    for ( int steps = 0; steps < nr_steps; steps++) {
       winningAgent.updateContext ( ) ;
       winningAgent.makeMove ( winningAgent.getStrategy( ).getAction ( winningAgent.getContext( ).getCoding( ) ) , false );
     }
